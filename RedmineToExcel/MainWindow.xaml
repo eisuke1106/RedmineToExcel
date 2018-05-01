@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
 
 
-        <Button x:Name="issueLoadButton" Grid.Row="1" Grid.Column="1" Content="チケット読込→" VerticalAlignment="Center" Width="auto" Click="button_Click"/>
+        <Button x:Name="issueLoadButton" Grid.Row="1" Grid.Column="1" Content="チケット読込→" VerticalAlignment="Center" Width="auto" Click="issueLoadButton_Click"/>
 
         <Label Grid.Row="0" Grid.Column="0" Content="プロジェクト一覧" FontSize="14" Margin="10,0"/>
         <Button x:Name="reloadButton" Content="再読込" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="75" Margin="0,0,10,0" Click="reloadButton_Click"/>
