@@ -22,6 +22,7 @@ using Redmine.Models;
 using System.Collections.ObjectModel;
 using log4net;
 using ClosedXML.Excel;
+using Microsoft.Win32;
 
 namespace RedmineToExcel
 {
@@ -63,7 +64,26 @@ namespace RedmineToExcel
                 }
             };
         }
-        
+
+        private void reloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Settings.Instance.IsValid())
+            {
+                RedmineApi.apiKey = Settings.Instance.redmineApiKey;
+                RedmineApi.baseUrl = Settings.Instance.redmineUrl;
+
+                this.issueStatus = RedmineApi.GetIssueStatus();
+                this.projectInfo = RedmineApi.GetProjects();
+
+                bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
+                this.loadProjectInfo(isChecked);
+            }
+            else
+            {
+                MessageBox.Show("設定を行って下さい。");
+            }
+        }
+
 
         private void loadProjectInfo(bool showClosed)
         {
@@ -114,6 +134,8 @@ namespace RedmineToExcel
             if (this.issueInfo == null){
                 return;
             }
+
+            projectTermLabel.Content = "( " + this.issueInfo.startDateString + " - " + this.issueInfo.endDateString + " )";
 
             displayIssueList.Clear();
             foreach (var issue in this.issueInfo.issues)
@@ -247,9 +269,9 @@ namespace RedmineToExcel
                             ws.Cell(i + offset, 2).Value = space + targetIssue.indentUnit + targetIssue.subject;
 
                             // 開始日
-                            ws.Cell(i + offset, 3).Value = targetIssue.start_date == DateTime.MinValue ? "-" : targetIssue.start_date.ToShortDateString();
+                            ws.Cell(i + offset, 3).Value = targetIssue.startDateString;
                             // 終了日
-                            ws.Cell(i + offset, 4).Value = targetIssue.due_date == DateTime.MinValue ? "-" : targetIssue.due_date.ToShortDateString();
+                            ws.Cell(i + offset, 4).Value = targetIssue.dueDateString;
                             // 終了日
                             ws.Cell(i + offset, 5).Value = targetIssue.done_ratio / 100;
                             // ステータス
@@ -272,14 +294,27 @@ namespace RedmineToExcel
                             }
 
                         }
-
-                        // wb.Save();
-
-                        wb.SaveAs("project.xlsm");
-                        var result = MessageBox.Show("Excel出力が完了しました。\nExcelファイルを開きますか？", "出力完了", MessageBoxButton.YesNo);
-                        if (result == MessageBoxResult.Yes)
+                        
+                        using (var ws2 = wb.Worksheet("設定シート"))
                         {
-                            System.Diagnostics.Process.Start("project.xlsm");
+                            // 開始日
+                            if (this.issueInfo.startDateString != "")
+                            {
+                                ws2.Cell(3, 3).Value = this.issueInfo.startDateString;
+                                ws2.Cell(4, 3).Value = this.issueInfo.projectTerm;
+                            }
+                        }
+
+                        string savePath = string.Empty;
+                        string fileName = "[" + this.projectNameLabel.Content.ToString() + "]" + "開発線表_" + DateTime.Now.Date.ToString("yyyyMMdd");
+                        if (openFileDialog(fileName, ref savePath))
+                        {
+                            wb.SaveAs(savePath);
+                            var result = MessageBox.Show("Excel出力が完了しました。\nExcelファイルを開きますか？", "出力完了", MessageBoxButton.YesNo);
+                            if (result == MessageBoxResult.Yes)
+                            {
+                                System.Diagnostics.Process.Start(savePath);
+                            }
                         }
                     }
                 }
@@ -327,5 +362,24 @@ namespace RedmineToExcel
             ConfigWindow configW = new ConfigWindow();
             configW.ShowDialog();
         }
+
+        private bool openFileDialog(string defaultName, ref string savePath)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = defaultName + ".xlsm";
+            sfd.InitialDirectory = @"C:\";
+            // sfd.Filter = "xlsmファイル(*.xlsm)";
+            sfd.Title = "保存先のファイルを選択してください";
+            sfd.RestoreDirectory = true;
+            sfd.OverwritePrompt = true;
+            sfd.CheckPathExists = true;
+            if (sfd.ShowDialog() == true)
+            {
+                savePath = sfd.FileName;
+                return true;
+            }
+            return false;
+        }
+
     }
 }

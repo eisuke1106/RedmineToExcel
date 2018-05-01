@@ -29,7 +29,6 @@ namespace Redmine
             }
             catch (Exception)
             {
-
                 //throw;
             }
 
