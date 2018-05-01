@@ -81,6 +81,7 @@
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OutputExcel.cs" />
     <Compile Include="Redmine\Models\Info.cs" />
     <Compile Include="Redmine\Models\Issues.cs" />
     <Compile Include="Redmine\Models\IssuesStatus.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Redmine\Models\Projects.cs" />
     <Compile Include="Redmine\RedmineApi.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Utility.cs" />
     <Page Include="ConfigWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

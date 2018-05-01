@@ -29,65 +29,109 @@ namespace Redmine
             }
             catch (Exception)
             {
-                //throw;
+                throw;
             }
-
-            return "";
         }
 
         private static string projectListEPjson = "/projects.json";
 
         public static Projects GetProjects()
         {
-            Debug.WriteLine("[Redmine]プロジェクト情報を取得します。");
-            string url = string.Format(baseUrl + projectListEPjson + "?key=" + apiKey);
-            var response = GetApi(url);
-            var projects = JsonConvert.DeserializeObject<Projects>(response);
-            return projects;
+            try
+            {
+                Debug.WriteLine("[Redmine]プロジェクト情報を取得します。");
+                string url = string.Format(baseUrl + projectListEPjson + "?key=" + apiKey);
+                var response = GetApi(url);
+                var projects = JsonConvert.DeserializeObject<Projects>(response);
+                return projects;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private static string projectEPjson = @"/projects/{0}.json";
 
         public static Project GetProject(int projectId)
         {
-            Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
-            string url = string.Format(baseUrl + projectEPjson + "?key=" + apiKey, projectId);
-            var response = GetApi(url);
-            var project = JsonConvert.DeserializeObject<Project>(response);
-            return project;
+            try
+            {
+                Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
+                string url = string.Format(baseUrl + projectEPjson + "?key=" + apiKey, projectId);
+                var response = GetApi(url);
+                var project = JsonConvert.DeserializeObject<Project>(response);
+                return project;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private static string projectMemberEPjson = @"/projects/{0}/memberships.json";
 
         public static Members GetProjectMembers(int projectId)
         {
-            Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
-            string url = string.Format(baseUrl + projectMemberEPjson + "?key=" + apiKey, projectId);
-            var response = GetApi(url);
-            var result = JsonConvert.DeserializeObject<Members>(response);
-            return result;
+            try
+            {
+                Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
+                string url = string.Format(baseUrl + projectMemberEPjson + "?key=" + apiKey, projectId);
+                var response = GetApi(url);
+                var result = JsonConvert.DeserializeObject<Members>(response);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private static string projectIssuesEPjson = @"/issues.json?project_id={0}&status_id=*";
 
         public static Issues GetProjectIssues(int projectId)
         {
-            Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
-            string url = string.Format(baseUrl + projectIssuesEPjson + "&key=" + apiKey, projectId);
-            var response = GetApi(url);
-            var result = JsonConvert.DeserializeObject<Issues>(response);
-            return result;
+            try
+            {
+                Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
+                string url = string.Format(baseUrl + projectIssuesEPjson + "&key=" + apiKey, projectId);
+                var response = GetApi(url);
+                var result = JsonConvert.DeserializeObject<Issues>(response);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private static string issuesStatusEPjson = @"/issue_statuses.json";
 
         public static IssuesStatus GetIssueStatus()
         {
-            Debug.WriteLine("[Redmine]ステータス情報を取得します。");
-            string url = string.Format(baseUrl + issuesStatusEPjson + "?key=" + apiKey);
-            var response = GetApi(url);
-            var result = JsonConvert.DeserializeObject<IssuesStatus>(response);
-            return result;
+            try
+            {
+                Debug.WriteLine("[Redmine]ステータス情報を取得します。");
+                string url = string.Format(baseUrl + issuesStatusEPjson + "?key=" + apiKey);
+                var response = GetApi(url);
+                var result = JsonConvert.DeserializeObject<IssuesStatus>(response);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+        public static string GetIssueUrl(int issueId)
+        {
+            return baseUrl + "/issues/" + issueId;
+        }
+
+        public static string GetProjectUrl(int projectId)
+        {
+            return baseUrl + "/projects/" + projectId;
         }
     }
 }

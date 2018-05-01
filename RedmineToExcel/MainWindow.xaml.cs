@@ -47,52 +47,63 @@ namespace RedmineToExcel
 
             ContentRendered += (s, e) =>
             {
+                this.getProjectInfo();
+            };
+        }
+
+        /// <summary>
+        /// 再読込ボタンイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void reloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.getProjectInfo();
+        }
+
+        /// <summary>
+        /// プロジェクト情報を取得します
+        /// </summary>
+        private void getProjectInfo()
+        {
+            try
+            {
                 if (Settings.Instance.IsValid())
                 {
                     RedmineApi.apiKey = Settings.Instance.redmineApiKey;
                     RedmineApi.baseUrl = Settings.Instance.redmineUrl;
 
+                    // URL,APIKey指定
                     this.issueStatus = RedmineApi.GetIssueStatus();
                     this.projectInfo = RedmineApi.GetProjects();
 
                     bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
-                    this.loadProjectInfo(isChecked);
+                    this.displayProjectInfo(isChecked);
                 }
                 else
                 {
-                    this.showSettingWindow();
+                    MessageBox.Show("設定を行って下さい。");
+                    ConfigWindow.ShowWindow();
                 }
-            };
-        }
-
-        private void reloadButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (Settings.Instance.IsValid())
-            {
-                RedmineApi.apiKey = Settings.Instance.redmineApiKey;
-                RedmineApi.baseUrl = Settings.Instance.redmineUrl;
-
-                this.issueStatus = RedmineApi.GetIssueStatus();
-                this.projectInfo = RedmineApi.GetProjects();
-
-                bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
-                this.loadProjectInfo(isChecked);
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("設定を行って下さい。");
+                MessageBox.Show(ex.ToString());
             }
         }
 
-
-        private void loadProjectInfo(bool showClosed)
+        /// <summary>
+        /// 画面表示用のプロジェクト情報に調整します
+        /// </summary>
+        /// <param name="showClosed">終了プロジェクトの表示・非表示</param>
+        private void displayProjectInfo(bool showClosed)
         {
-            displayProjectLists.Clear();
             if (this.projectInfo == null)
             {
                 return;
             }
 
+            displayProjectLists.Clear();
             foreach (var project in this.projectInfo.projects)
             {
                 var status = project.status;
@@ -121,21 +132,43 @@ namespace RedmineToExcel
             }
         }
 
+        /// <summary>
+        /// チケット情報を読み込みイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void issueLoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
+            if (item != null)
+            {
+                this.projectNameLabel.Content = item.name;
+                this.getProjectIssuInfo(item.id);
+            }
+        }
+
+        /// <summary>
+        /// 対象プロジェクトのチケット情報を読み込みます
+        /// </summary>
+        /// <param name="projectId"></param>
         private void getProjectIssuInfo(int projectId)
         {
             bool isChecked = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
 
             this.issueInfo = RedmineApi.GetProjectIssues(projectId);
-            this.loadIssueInfo(isChecked);
+            projectTermLabel.Content = "( " + this.issueInfo.startDateString + " - " + this.issueInfo.endDateString + " )";
+            this.displayIssueInfo(isChecked);
         }
 
-        private void loadIssueInfo(bool showClosed)
+        /// <summary>
+        /// 画面表示用のチケット情報に調整します
+        /// </summary>
+        /// <param name="showClosed">終了チケットの表示・非表示</param>
+        private void displayIssueInfo(bool showClosed)
         {
             if (this.issueInfo == null){
                 return;
             }
-
-            projectTermLabel.Content = "( " + this.issueInfo.startDateString + " - " + this.issueInfo.endDateString + " )";
 
             displayIssueList.Clear();
             foreach (var issue in this.issueInfo.issues)
@@ -157,229 +190,79 @@ namespace RedmineToExcel
             }
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
-            if (item != null)
-            {
-                this.projectNameLabel.Content = item.name;
-                this.getProjectIssuInfo(item.id);
-            }
-        }
-
+        /// <summary>
+        /// 終了プロジェクトを表示・非表示します
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void closedProjectCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
-            this.loadProjectInfo(isChecked);
+            this.displayProjectInfo(isChecked);
         }
 
+        /// <summary>
+        /// 終了チケットを表示・非表示します
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void closedIssueCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             bool isChecked = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
-            this.loadIssueInfo(isChecked);
+            this.displayIssueInfo(isChecked);
         }
 
+        /// <summary>
+        /// 右クリックイベント
+        /// プロジェクト情報をブラウザで開きます
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ProjectOpenInBrowser_Click(object sender, RoutedEventArgs e)
         {
             if (listView.SelectedIndex == -1) return;
             ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
             if (item != null)
             {
-                string url = Settings.Instance.redmineUrl + "/projects/" + item.id;
-                this.openBrower(url);
+                Utility.openUrl(RedmineApi.GetProjectUrl(item.id));
             }
         }
+
+        /// <summary>
+        /// 右クリックイベント
+        /// チケット情報をブラウザで開きます
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void IssueOpenInBrowser_Click(object sender, RoutedEventArgs e)
         {
             if (issueListView.SelectedIndex == -1) return;
             Issue item = issueListView.SelectedItem == null ? null : (Issue)issueListView.SelectedItem;
             if (item != null)
             {
-                string url = Settings.Instance.redmineUrl + "/issues/" + item.id;
-                this.openBrower(url);
+                Utility.openUrl(RedmineApi.GetIssueUrl(item.id));
             }
         }
-
         
-
-        private void openBrower(string url)
+        /// <summary>
+        /// Excelファイルに出力します
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OutputExcel_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start(url);
-        } 
-
-
-        private void DataCompletion_Click(object sender, RoutedEventArgs e)
-        {
-            List<Issue> output = new List<Issue>(issueInfo.issues);
-
-            foreach (Issue issue in output)
-            {
-                if (issue.parent != null)
-                {
-                    var parentId = issue.parent.id;
-                    var parentIssue = issueInfo.issues.Where(data => data.id == parentId).FirstOrDefault();
-                    if (parentIssue != null)
-                    {
-                        parentIssue.children.Add(issue);
-                    }
-                }
-            }
-
-            List<Issue> filterdOutput = output.Where(data => data.parent == null).OrderBy(data => data.start_date).ToList();
-
-            this.OutputToExcel(filterdOutput);
+            OutputExcel excel = new OutputExcel(this.projectNameLabel.Content.ToString(), this.issueInfo, this.issueStatus);
+            excel.Output();
         }
 
-
-        private void OutputToExcel(List<Issue> issues)
-        {
-            try
-            {
-                using (var wb = new XLWorkbook("./Files/base.xlsm"))
-                {
-                    using (var ws = wb.Worksheet("開発線表"))
-                    {
-                        int offset = 5;
-
-                        List<Issue> newList = new List<Issue>();
-                        this.WriteIssues(issues, newList);
-
-                        // プロジェクト名
-                        ws.Cell(2, 2).Value = this.projectNameLabel.Content;
-
-                        // 行生成
-                        ws.Row(offset).InsertRowsBelow(newList.Count - 1);
-                        ws.Rows(offset, newList.Count + offset - 1).Height = 15;
-
-                        for (int i = 0; i < newList.Count; i++)
-                        {
-                            Issue targetIssue = newList[i];
-                            // id
-                            ws.Cell(i + offset, 1).Value = i + 1;
-                            // タイトル
-
-                            // ws.Cell(i + offset, 2).Value = targetIssue.subject;
-                            // ws.Cell(i + offset, 2).Style.Alignment.Indent = targetIssue.indent;
-
-                            string space = string.Empty;
-                            for (int indent = 1; indent < targetIssue.indent; indent++)
-                            {
-                                space += "　";
-                            }
-                            ws.Cell(i + offset, 2).Value = space + targetIssue.indentUnit + targetIssue.subject;
-
-                            // 開始日
-                            ws.Cell(i + offset, 3).Value = targetIssue.startDateString;
-                            // 終了日
-                            ws.Cell(i + offset, 4).Value = targetIssue.dueDateString;
-                            // 終了日
-                            ws.Cell(i + offset, 5).Value = targetIssue.done_ratio / 100;
-                            // ステータス
-                            ws.Cell(i + offset, 6).Value = targetIssue.status.name;
-                            if (this.issueStatus.issue_statuses.Exists(data => data.id == targetIssue.status.id && data.is_closed))
-                            {
-                                ws.Cell(i + offset, 6).Style.Fill.BackgroundColor = XLColor.LightGray;
-                            }
-
-                            // 担当者
-                            ws.Cell(i + offset, 7).Value = targetIssue.assigned_to == null ? "-" : targetIssue.assigned_to.name;
-                            // チケット番号
-                            ws.Cell(i + offset, 8).Value = "#" + targetIssue.id;
-                            ws.Cell(i + offset, 8).Hyperlink = new XLHyperlink(Settings.Instance.redmineUrl + "/issues/" + targetIssue.id);
-                            // 親チケット
-                            ws.Cell(i + offset, 9).Value = targetIssue.parent == null ? "" : "#" + targetIssue.parent.id.ToString();
-                            if (targetIssue.parent != null)
-                            {
-                                ws.Cell(i + offset, 9).Hyperlink = new XLHyperlink(Settings.Instance.redmineUrl + "/issues/" + targetIssue.parent.id);
-                            }
-
-                        }
-                        
-                        using (var ws2 = wb.Worksheet("設定シート"))
-                        {
-                            // 開始日
-                            if (this.issueInfo.startDateString != "")
-                            {
-                                ws2.Cell(3, 3).Value = this.issueInfo.startDateString;
-                                ws2.Cell(4, 3).Value = this.issueInfo.projectTerm;
-                            }
-                        }
-
-                        string savePath = string.Empty;
-                        string fileName = "[" + this.projectNameLabel.Content.ToString() + "]" + "開発線表_" + DateTime.Now.Date.ToString("yyyyMMdd");
-                        if (openFileDialog(fileName, ref savePath))
-                        {
-                            wb.SaveAs(savePath);
-                            var result = MessageBox.Show("Excel出力が完了しました。\nExcelファイルを開きますか？", "出力完了", MessageBoxButton.YesNo);
-                            if (result == MessageBoxResult.Yes)
-                            {
-                                System.Diagnostics.Process.Start(savePath);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Excel出力に失敗しました。\nエラー：" + ex.ToString());
-            }
-        }
-
-        private void WriteIssues( List<Issue> issues, List<Issue> newList)
-        {
-            foreach (Issue issue in issues)
-            {
-                newList.Add(issue);
-                if (issue.children.Count > 0)
-                {
-                    List<Issue> childList = issue.children.OrderBy(data => data.start_date).ToList();
-
-                    var lastChild = childList.Last();
-                    foreach(Issue child in childList)
-                    {
-                        child.indent = issue.indent + 1;
-                        if (child == lastChild)
-                        {
-                            child.indentUnit = "└";
-                        }
-                        else
-                        {
-                            child.indentUnit = "├";
-                        }
-                    }
-                    WriteIssues(childList, newList);
-                }
-            }
-        }
-
+        /// <summary>
+        /// 設定画面を開きます
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void settingButton_Click(object sender, RoutedEventArgs e)
         {
-            this.showSettingWindow();
+            ConfigWindow.ShowWindow();
         }
-
-        private void showSettingWindow()
-        {
-            ConfigWindow configW = new ConfigWindow();
-            configW.ShowDialog();
-        }
-
-        private bool openFileDialog(string defaultName, ref string savePath)
-        {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = defaultName + ".xlsm";
-            sfd.InitialDirectory = @"C:\";
-            // sfd.Filter = "xlsmファイル(*.xlsm)";
-            sfd.Title = "保存先のファイルを選択してください";
-            sfd.RestoreDirectory = true;
-            sfd.OverwritePrompt = true;
-            sfd.CheckPathExists = true;
-            if (sfd.ShowDialog() == true)
-            {
-                savePath = sfd.FileName;
-                return true;
-            }
-            return false;
-        }
-
     }
 }

@@ -19,7 +19,13 @@ namespace RedmineToExcel
     /// </summary>
     public partial class ConfigWindow : Window
     {
-        public ConfigWindow()
+        public static void ShowWindow()
+        {
+            ConfigWindow configW = new ConfigWindow();
+            configW.ShowDialog();
+        }
+
+        private ConfigWindow()
         {
             InitializeComponent();
 
