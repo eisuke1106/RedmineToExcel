@@ -28,7 +28,7 @@ namespace RedmineToExcel
         /// </summary>
         /// <param name="defaultName">規定名</param>
         /// <param name="savePath">保存先パスを格納して返す</param>
-        /// <returns>true：成功 false：失敗（キャンセル）</returns>
+        /// <returns>true：成功, false：失敗 or キャンセル</returns>
         static public bool OpenFileDialog(string defaultName, ref string savePath)
         {
             SaveFileDialog sfd = new SaveFileDialog();
