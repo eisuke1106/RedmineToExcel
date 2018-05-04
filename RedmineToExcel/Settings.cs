@@ -13,6 +13,9 @@ namespace RedmineToExcel
         public string redmineApiKey = null;
         public int redmineApiLimit = 100;
 
+        /// <summary>
+        /// 共有インスタンス
+        /// </summary>
         public static Settings Instance
         {
             get
@@ -21,6 +24,9 @@ namespace RedmineToExcel
             }
         }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         private Settings()
         {
             this.redmineUrl = Properties.Settings.Default.Redmine_Url;
@@ -28,6 +34,10 @@ namespace RedmineToExcel
             this.redmineApiLimit = Properties.Settings.Default.ApiLitmi;
         }
 
+        /// <summary>
+        /// 設定が有効かどうかを返します
+        /// </summary>
+        /// <returns>true：有効 false：無効</returns>
         public bool IsValid()
         {
             if (this.redmineApiKey == "" || this.redmineUrl == "")
@@ -38,6 +48,9 @@ namespace RedmineToExcel
             return true;
         }
 
+        /// <summary>
+        /// 設定を保存します
+        /// </summary>
         public void Save()
         {
             Properties.Settings.Default.Redmine_Url = this.redmineUrl;
