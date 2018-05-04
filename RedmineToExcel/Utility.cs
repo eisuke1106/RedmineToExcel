@@ -9,12 +9,12 @@ namespace RedmineToExcel
 {
     static class Utility
     {
-        static public void openUrl(string url)
+        static public void OpenUrl(string url)
         {
             System.Diagnostics.Process.Start(url);
         }
 
-        static public bool openFileDialog(string defaultName, ref string savePath)
+        static public bool OpenFileDialog(string defaultName, ref string savePath)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.FileName = defaultName + ".xlsm";

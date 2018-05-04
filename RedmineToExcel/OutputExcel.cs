@@ -165,13 +165,13 @@ namespace RedmineToExcel
                         // ファイル出力
                         string savePath = string.Empty;
                         string fileName = "[" + this.projectData.name + "]" + "開発線表_" + DateTime.Now.Date.ToString("yyyyMMdd");
-                        if (Utility.openFileDialog(fileName, ref savePath))
+                        if (Utility.OpenFileDialog(fileName, ref savePath))
                         {
                             wb.SaveAs(savePath);
                             var result = MessageBox.Show("Excel出力が完了しました。\nExcelファイルを開きますか？", "出力完了", MessageBoxButton.YesNo);
                             if (result == MessageBoxResult.Yes)
                             {
-                                Utility.openUrl(savePath);
+                                Utility.OpenUrl(savePath);
                             }
                         }
                     }

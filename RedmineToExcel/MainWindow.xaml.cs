@@ -260,7 +260,7 @@ namespace RedmineToExcel
             ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
             if (item != null)
             {
-                Utility.openUrl(RedmineApi.GetProjectUrl(item.id));
+                Utility.OpenUrl(RedmineApi.GetProjectUrl(item.id));
             }
         }
 
@@ -276,7 +276,7 @@ namespace RedmineToExcel
             Issue item = issueListView.SelectedItem == null ? null : (Issue)issueListView.SelectedItem;
             if (item != null)
             {
-                Utility.openUrl(RedmineApi.GetIssueUrl(item.id));
+                Utility.OpenUrl(RedmineApi.GetIssueUrl(item.id));
             }
         }
         
