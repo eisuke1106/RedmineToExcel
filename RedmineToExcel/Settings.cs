@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace RedmineToExcel
 {
+    /// <summary>
+    /// 設定情報統括クラス
+    /// </summary>
     class Settings
     {
         private static Settings instance = new Settings();
