@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RedmineToExcel"
         mc:Ignorable="d"
-        Title="RedmineToExcel" Height="800" Width="1200">
+        Title="RedmineToExcel" Height="800" MinHeight="800" Width="1200" MinWidth="1200">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -52,11 +52,16 @@
         </StackPanel>
 
         <ListView x:Name="issueListView" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,10,0"  >
-            <ListBox.ContextMenu>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="ToolTip" Value="{Binding Path=tooltip}"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Open in Browser" Click="IssueOpenInBrowser_Click"/>
                 </ContextMenu>
-            </ListBox.ContextMenu>
+            </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="ID" DisplayMemberBinding="{Binding id}" Width="40"/>
@@ -69,7 +74,10 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
+        <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
+            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
+            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showSubProjectIssueCheckBox" Content="サブプロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="showSubProjectIssueCheckBox_Checked" Unchecked="showSubProjectIssueCheckBox_Checked"/>
+        </StackPanel>
 
         <Button x:Name="issueLoadButton2" Grid.Column="2" Grid.Row="3" Content="Execl出力" Margin="10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100" Click="OutputExcel_Click"/>
 

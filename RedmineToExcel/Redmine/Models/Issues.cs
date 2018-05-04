@@ -10,7 +10,25 @@ namespace Redmine.Models
     class Issues
     {
         public List<Issue> issues { get; set; }
+        public int total_count { get; set; }
+        public int offset { get; set; }
+        public int limit { get; set; }
 
+        [JsonIgnore]
+        public bool existMore
+        {
+            get
+            {
+                if (this.total_count > this.limit)
+                {
+                    return true;
+                }
+                return false;
+
+            }
+        }
+
+        [JsonIgnore]
         public string startDateString
         {
             get
@@ -37,6 +55,7 @@ namespace Redmine.Models
             }
         }
 
+        [JsonIgnore]
         public string endDateString
         {
             get
@@ -63,6 +82,7 @@ namespace Redmine.Models
             }
         }
 
+        [JsonIgnore]
         public int projectTerm
         {
             get
@@ -103,6 +123,19 @@ namespace Redmine.Models
         public Info parent { get; set; }
         public string subject { get; set; }
         public string description { get; set; }
+
+        [JsonIgnore]
+        public string tooltip
+        {
+            get
+            {
+                if (this.description == string.Empty)
+                    return "（説明はありません）";
+                else
+                    return this.description;
+            }
+        }
+
         public DateTime start_date { get; set; }
         [JsonIgnore]
         public string startDateString
@@ -146,6 +179,7 @@ namespace Redmine.Models
 
         [JsonIgnore]
         public int indent = 0;
+        [JsonIgnore]
         public string indentUnit = "";
     }
 

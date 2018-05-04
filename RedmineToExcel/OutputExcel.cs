@@ -13,22 +13,28 @@ namespace RedmineToExcel
     {
         private Issues issueInfo;
         private IssuesStatus issueStatus;
-        private string projectName;
+        private ProjectData projectData;
 
         OutputExcel()
         {
 
         }
 
-        public OutputExcel(string projectName, Issues issueInfo, IssuesStatus issueStatus)
+        public OutputExcel(ProjectData projectData, Issues issueInfo, IssuesStatus issueStatus)
         {
-            this.projectName = projectName;
+            this.projectData = projectData;
             this.issueInfo = issueInfo;
             this.issueStatus = issueStatus;
         }
 
         public void Output()
         {
+            // 子階層リセット処理（一時対策）
+            foreach (Issue issue in issueInfo.issues)
+            {
+                issue.children = new List<Issue>();
+            }
+
             List<Issue> output = new List<Issue>(issueInfo.issues);
 
             // 親子階層構造構築
@@ -91,7 +97,7 @@ namespace RedmineToExcel
                         int offset = 5;
 
                         // プロジェクト名
-                        ws.Cell(2, 2).Value = this.projectName;
+                        ws.Cell(2, 2).Value = this.projectData.name;
 
                         // 行生成
                         ws.Row(offset).InsertRowsBelow(issues.Count - 1);
@@ -150,9 +156,15 @@ namespace RedmineToExcel
                             }
                         }
 
+                        using (var ws3 = wb.Worksheet("隠しシート"))
+                        {
+                            // 表示件数
+                            ws3.Cell(2, 2).Value = issues.Count;
+                        }
+
                         // ファイル出力
                         string savePath = string.Empty;
-                        string fileName = "[" + this.projectName + "]" + "開発線表_" + DateTime.Now.Date.ToString("yyyyMMdd");
+                        string fileName = "[" + this.projectData.name + "]" + "開発線表_" + DateTime.Now.Date.ToString("yyyyMMdd");
                         if (Utility.openFileDialog(fileName, ref savePath))
                         {
                             wb.SaveAs(savePath);

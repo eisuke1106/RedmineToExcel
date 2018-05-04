@@ -46,5 +46,17 @@ namespace RedmineToExcel.Properties {
                 this["ApiKey"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int ApiLitmi {
+            get {
+                return ((int)(this["ApiLitmi"]));
+            }
+            set {
+                this["ApiLitmi"] = value;
+            }
+        }
     }
 }

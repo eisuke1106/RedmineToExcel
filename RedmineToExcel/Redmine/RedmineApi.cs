@@ -17,11 +17,14 @@ namespace Redmine
 
         public static string apiKey = "";
 
+        public static int limit = 100;
+
         public static string GetApi(string url)
         {
             try
             {
-                var Req = HttpWebRequest.Create(url);
+                Debug.WriteLine("[Redmine]" + url);
+                var Req = HttpWebRequest.Create(url + "&limit=" + limit);
                 HttpWebResponse Res = (HttpWebResponse)Req.GetResponse();
                 StreamReader st_Reader = new StreamReader(Res.GetResponseStream(), new UTF8Encoding(false));
                 string response = st_Reader.ReadToEnd();

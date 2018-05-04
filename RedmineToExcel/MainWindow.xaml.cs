@@ -32,6 +32,7 @@ namespace RedmineToExcel
     public partial class MainWindow : Window
     {
         private Projects projectInfo;
+        private ProjectData selectedProject;
         private Issues issueInfo;
         private IssuesStatus issueStatus;
 
@@ -72,6 +73,7 @@ namespace RedmineToExcel
                 {
                     RedmineApi.apiKey = Settings.Instance.redmineApiKey;
                     RedmineApi.baseUrl = Settings.Instance.redmineUrl;
+                    RedmineApi.limit = Settings.Instance.redmineApiLimit;
 
                     // URL,APIKey指定
                     this.issueStatus = RedmineApi.GetIssueStatus();
@@ -142,6 +144,7 @@ namespace RedmineToExcel
             ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
             if (item != null)
             {
+                this.selectedProject = item;
                 this.projectNameLabel.Content = item.name;
                 this.getProjectIssuInfo(item.id);
             }
@@ -153,32 +156,63 @@ namespace RedmineToExcel
         /// <param name="projectId"></param>
         private void getProjectIssuInfo(int projectId)
         {
-            bool isChecked = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
-
             this.issueInfo = RedmineApi.GetProjectIssues(projectId);
+
+            if (issueInfo.existMore)
+            {
+                MessageBox.Show("表示しきれていないチケットがあります。取得件数上限（Redmine Api Limit）を増やして再度実行して下さい。");
+            }
+
             projectTermLabel.Content = "( " + this.issueInfo.startDateString + " - " + this.issueInfo.endDateString + " )";
-            this.displayIssueInfo(isChecked);
+
+            bool showClosedIssue = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
+            bool showSubProject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
+
+            this.displayIssueInfo(showClosedIssue, showSubProject);
         }
 
         /// <summary>
         /// 画面表示用のチケット情報に調整します
         /// </summary>
         /// <param name="showClosed">終了チケットの表示・非表示</param>
-        private void displayIssueInfo(bool showClosed)
+        private void displayIssueInfo(bool showClosed, bool showSubProject)
         {
             if (this.issueInfo == null){
                 return;
             }
 
+            if (this.selectedProject == null)
+            {
+                return;
+            }
+            
             displayIssueList.Clear();
+
+            List<Issue> tempList = new List<Issue>();
+
             foreach (var issue in this.issueInfo.issues)
+            {
+                if (!showSubProject)
+                {
+                    if (this.selectedProject.id == issue.project.id)
+                    {
+                        tempList.Add(issue);
+                    }
+                }
+                else
+                {
+                    tempList.Add(issue);
+                }
+            }
+
+            foreach (var issue in tempList)
             {
                 if (!showClosed)
                 {
                     int status = issue.status.id;
-                    var issueStatus = this.issueStatus.issue_statuses.Where(data => data.id == status).FirstOrDefault();
+                    var issueStatus = this.issueStatus.issue_statuses.Where(data => data.id == status && data.is_closed == false).FirstOrDefault();
                     // 終了していないプロジェクトの追加
-                    if (issueStatus != null && issueStatus.is_closed == false)
+                    if (issueStatus != null)
                     {
                         displayIssueList.Add(issue);
                     }
@@ -208,8 +242,10 @@ namespace RedmineToExcel
         /// <param name="e"></param>
         private void closedIssueCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            bool isChecked = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
-            this.displayIssueInfo(isChecked);
+            bool showClosedIssue = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
+            bool showSubPorject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
+
+            this.displayIssueInfo(showClosedIssue, showSubPorject);
         }
 
         /// <summary>
@@ -251,7 +287,7 @@ namespace RedmineToExcel
         /// <param name="e"></param>
         private void OutputExcel_Click(object sender, RoutedEventArgs e)
         {
-            OutputExcel excel = new OutputExcel(this.projectNameLabel.Content.ToString(), this.issueInfo, this.issueStatus);
+            OutputExcel excel = new OutputExcel(this.selectedProject, this.issueInfo, this.issueStatus);
             excel.Output();
         }
 
@@ -263,6 +299,14 @@ namespace RedmineToExcel
         private void settingButton_Click(object sender, RoutedEventArgs e)
         {
             ConfigWindow.ShowWindow();
+        }
+
+        private void showSubProjectIssueCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            bool showClosedIssue = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
+            bool showSubPorject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
+
+            this.displayIssueInfo(showClosedIssue, showSubPorject);
         }
     }
 }
