@@ -15,11 +15,20 @@ namespace RedmineToExcel
         private IssuesStatus issueStatus;
         private ProjectData projectData;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         OutputExcel()
         {
 
         }
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="projectData">対象ProjectData</param>
+        /// <param name="issueInfo">対象Issue</param>
+        /// <param name="issueStatus">対象IssueStatus</param>
         public OutputExcel(ProjectData projectData, Issues issueInfo, IssuesStatus issueStatus)
         {
             this.projectData = projectData;
@@ -27,6 +36,9 @@ namespace RedmineToExcel
             this.issueStatus = issueStatus;
         }
 
+        /// <summary>
+        /// ファイル出力処理開始
+        /// </summary>
         public void Output()
         {
             // 子階層リセット処理（一時対策）
@@ -60,6 +72,11 @@ namespace RedmineToExcel
             this.OutputToExcel(newIssueList);
         }
 
+        /// <summary>
+        /// 階層構造を再度リスト化
+        /// </summary>
+        /// <param name="issues"></param>
+        /// <param name="newList"></param>
         private void CreateNewIssueList(List<Issue> issues, List<Issue> newList)
         {
             foreach (Issue issue in issues)
@@ -86,6 +103,10 @@ namespace RedmineToExcel
             }
         }
 
+        /// <summary>
+        /// Excelファイルに出力
+        /// </summary>
+        /// <param name="issues"></param>
         private void OutputToExcel(List<Issue> issues)
         {
             try
