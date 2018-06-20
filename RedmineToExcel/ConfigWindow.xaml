@@ -5,7 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RedmineToExcel"
         mc:Ignorable="d"
-        Title="設定画面" Height="220" Width="600" ResizeMode="NoResize">
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Title="設定画面" Height="230" Width="600" ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="140"/>
@@ -16,7 +24,7 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Label x:Name="label" Grid.Row="1" Content="Redmine URL：" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
@@ -29,8 +37,8 @@
 
 
         <StackPanel Orientation="Horizontal"  Grid.Row="4" Grid.Column="1" Margin="10" HorizontalAlignment="Right">
-            <Button x:Name="cancelButton" Content="キャンセル" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="cancelButton_Click"/>
-            <Button x:Name="saveButton" Content="保存" HorizontalAlignment="Left" Margin="10,0" VerticalAlignment="Top" Width="75" Click="saveButton_Click"/>
+            <Button x:Name="cancelButton" Content="キャンセル" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Click="cancelButton_Click"/>
+            <Button x:Name="saveButton" Content="保存" HorizontalAlignment="Left" Margin="10,0" VerticalAlignment="Top" Width="100" Click="saveButton_Click"/>
         </StackPanel>
 
     </Grid>

@@ -78,10 +78,28 @@ namespace Redmine
         {
             try
             {
-                Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
+                Debug.WriteLine("[Redmine]プロジェクトMember情報(" + projectId + ")を取得します。");
                 string url = string.Format(baseUrl + projectMemberEPjson + "?key=" + apiKey, projectId);
                 var response = GetApi(url);
                 var result = JsonConvert.DeserializeObject<Members>(response);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private static string projectVersionEPjson = @"/projects/{0}/versions.json";
+
+        public static Versions GetProjectVersions(int projectId)
+        {
+            try
+            {
+                Debug.WriteLine("[Redmine]プロジェクトVersion情報(" + projectId + ")を取得します。");
+                string url = string.Format(baseUrl + projectVersionEPjson + "?key=" + apiKey, projectId);
+                var response = GetApi(url);
+                var result = JsonConvert.DeserializeObject<Versions>(response);
                 return result;
             }
             catch (Exception)

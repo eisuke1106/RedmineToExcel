@@ -107,6 +107,7 @@ namespace Redmine.Models
         public Info status { get; set; }
         public Info priority { get; set; }
         public Info author { get; set; }
+        public Info fixed_version { get; set; }
         public Info assigned_to { get; set; }
         public string assignedUser
         {

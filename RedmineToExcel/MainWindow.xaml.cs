@@ -35,9 +35,11 @@ namespace RedmineToExcel
         private ProjectData selectedProject;
         private Issues issueInfo;
         private IssuesStatus issueStatus;
+        private Versions versions;
 
         private ObservableCollection<ProjectData> displayProjectLists = new ObservableCollection<ProjectData>();
         private ObservableCollection<Issue> displayIssueList = new ObservableCollection<Issue>();
+        private ObservableCollection<VersionData> displayVersionList = new ObservableCollection<VersionData>();
 
         public MainWindow()
         {
@@ -45,6 +47,7 @@ namespace RedmineToExcel
 
             this.listView.ItemsSource = displayProjectLists;
             this.issueListView.ItemsSource = displayIssueList;
+            this.versionComboBox.ItemsSource = displayVersionList;
 
             ContentRendered += (s, e) =>
             {
@@ -157,6 +160,8 @@ namespace RedmineToExcel
         private void getProjectIssuInfo(int projectId)
         {
             this.issueInfo = RedmineApi.GetProjectIssues(projectId);
+            this.versions = RedmineApi.GetProjectVersions(projectId);
+            this.displayVersionsInfo();
 
             if (issueInfo.existMore)
             {
@@ -164,20 +169,37 @@ namespace RedmineToExcel
             }
 
             projectTermLabel.Content = "( " + this.issueInfo.startDateString + " - " + this.issueInfo.endDateString + " )";
+            
+            this.displayIssueInfo(this.issueInfo.issues);
+        }
 
-            bool showClosedIssue = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
-            bool showSubProject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
+        private void displayVersionsInfo()
+        {
+            displayVersionList.Clear();
 
-            this.displayIssueInfo(showClosedIssue, showSubProject);
+            VersionData noVersion = new VersionData();
+            noVersion.id = -1;
+            noVersion.name = "全体";
+            displayVersionList.Add(noVersion);
+
+            foreach ( var version in this.versions.versions)
+            {
+                displayVersionList.Add(version);
+            }
+
+            this.versionComboBox.SelectedIndex = 0;
         }
 
         /// <summary>
         /// 画面表示用のチケット情報に調整します
         /// </summary>
         /// <param name="showClosed">終了チケットの表示・非表示</param>
-        private void displayIssueInfo(bool showClosed, bool showSubProject)
+        private void displayIssueInfo(List<Issue> issues)
         {
-            if (this.issueInfo == null){
+            bool showClosed = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
+            bool showSubProject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
+
+            if (issues == null){
                 return;
             }
 
@@ -190,7 +212,7 @@ namespace RedmineToExcel
 
             List<Issue> tempList = new List<Issue>();
 
-            foreach (var issue in this.issueInfo.issues)
+            foreach (var issue in issues)
             {
                 if (!showSubProject)
                 {
@@ -242,10 +264,7 @@ namespace RedmineToExcel
         /// <param name="e"></param>
         private void closedIssueCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            bool showClosedIssue = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
-            bool showSubPorject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
-
-            this.displayIssueInfo(showClosedIssue, showSubPorject);
+            this.displayIssueInfo(this.issueInfo.issues);
         }
 
         /// <summary>
@@ -301,12 +320,25 @@ namespace RedmineToExcel
             ConfigWindow.ShowWindow();
         }
 
+
         private void showSubProjectIssueCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            bool showClosedIssue = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
-            bool showSubPorject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
+            this.displayIssueInfo(this.issueInfo.issues);
+        }
 
-            this.displayIssueInfo(showClosedIssue, showSubPorject);
+        private void versionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int selectedIndex = this.versionComboBox.SelectedIndex;
+            if ( selectedIndex <= 0)
+            {
+                this.displayIssueInfo(this.issueInfo.issues);
+            }
+            else
+            {
+                var version = this.versions.versions[selectedIndex - 1];
+                var versionIssues = this.issueInfo.issues.Where(data => data.fixed_version != null && data.fixed_version.id == version.id).ToList();
+                this.displayIssueInfo(versionIssues);
+            }
         }
     }
 }

@@ -5,6 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RedmineToExcel"
         mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         Title="RedmineToExcel" Height="800" MinHeight="800" Width="1200" MinWidth="1200">
 
     <Grid>
@@ -44,19 +52,26 @@
         <Button x:Name="settingButton" Content="設定" HorizontalAlignment="Left" Margin="10,0" Grid.Row="3" VerticalAlignment="Center" Width="75" Click="settingButton_Click"/>
 
 
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0" >
-            <Label x:Name="projectNameHeader" Content="プロジェクト名：" FontSize="14" Margin="10,0,0,0"/>
-            <Label x:Name="projectNameLabel" Content="-" FontSize="14" Margin="0"/>
-            <Label x:Name="projectTermLabel" Content="-" FontSize="14" Margin="0"/>
-
+        <StackPanel  Orientation="Horizontal" Grid.Column="2" Grid.Row="0">
+            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
+                <Label x:Name="projectNameHeader" Content="プロジェクト名：" FontSize="14" Margin="10,0,0,0"/>
+                <Label x:Name="projectNameLabel" Content="-" FontSize="14" Margin="0"/>
+                <Label x:Name="projectTermLabel" Content="-" FontSize="14" Margin="0"/>
+            </StackPanel>
+            <StackPanel  Orientation="Horizontal" Width="300">
+                <Label x:Name="versionNameHeader" Content="バージョン：" FontSize="14" Margin="10,0,0,0"/>
+                <ComboBox x:Name="versionComboBox" Width="220" ItemsSource="{Binding displayVersionLists}" DisplayMemberPath="name" SelectedValuePath="id" SelectionChanged="versionComboBox_SelectionChanged" />
+            </StackPanel>
         </StackPanel>
 
+
+
         <ListView x:Name="issueListView" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,10,0"  >
-            <ListView.ItemContainerStyle>
+            <!--<ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="ToolTip" Value="{Binding Path=tooltip}"/>
                 </Style>
-            </ListView.ItemContainerStyle>
+            </ListView.ItemContainerStyle>-->
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Open in Browser" Click="IssueOpenInBrowser_Click"/>
