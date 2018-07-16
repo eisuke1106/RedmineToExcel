@@ -23,9 +23,17 @@ using System.Collections.ObjectModel;
 using log4net;
 using ClosedXML.Excel;
 using Microsoft.Win32;
+using RedmineToExcel.Dialogs;
+using MaterialDesignThemes.Wpf;
 
 namespace RedmineToExcel
 {
+    public class Person
+    {
+        public string Name { get; set; }
+        public List<Person> Children { get; set; }
+    }
+
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
@@ -37,21 +45,56 @@ namespace RedmineToExcel
         private IssuesStatus issueStatus;
         private Versions versions;
 
-        private ObservableCollection<ProjectData> displayProjectLists = new ObservableCollection<ProjectData>();
+        private ObservableCollection<ProjectData> displayProjectLists { get; set; } = new ObservableCollection<ProjectData>();
         private ObservableCollection<Issue> displayIssueList = new ObservableCollection<Issue>();
         private ObservableCollection<VersionData> displayVersionList = new ObservableCollection<VersionData>();
+
 
         public MainWindow()
         {
             InitializeComponent();
 
-            this.listView.ItemsSource = displayProjectLists;
-            this.issueListView.ItemsSource = displayIssueList;
+            //this.listView.ItemsSource = displayProjectLists;
+
+            //this.TreeView.ItemsSource = displayProjectLists;
+            this.IssueView.ItemsSource = displayIssueList;
             this.versionComboBox.ItemsSource = displayVersionList;
+
+            //this.treeView.ItemsSource = new List<ProjectData>
+            //{
+            //    new ProjectData
+            //    {
+            //        Name = "田中　太郎",
+            //        Children = new List<ProjectData>
+            //        {
+            //            new ProjectData { Name = "田中　花子" },
+            //            new ProjectData { Name = "田中　一郎" },
+            //            new ProjectData
+            //            {
+            //                Name = "木村　貫太郎",
+            //                Children = new List<ProjectData>
+            //                {
+            //                    new ProjectData { Name = "木村　はな" },
+            //                    new ProjectData { Name = "木村　梅" },
+            //                }
+            //            }
+            //        }
+            //    },
+            //    new ProjectData
+            //    {
+            //        Name = "田中　次郎",
+            //        Children = new List<ProjectData>
+            //        {
+            //            new ProjectData { Name = "田中　三郎" }
+            //        }
+            //    }
+            //};
+
 
             ContentRendered += (s, e) =>
             {
                 this.getProjectInfo();
+                this.treeView.ItemsSource = displayProjectLists;
             };
         }
 
@@ -82,8 +125,8 @@ namespace RedmineToExcel
                     this.issueStatus = RedmineApi.GetIssueStatus();
                     this.projectInfo = RedmineApi.GetProjects();
 
-                    bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
-                    this.displayProjectInfo(isChecked);
+                    //bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
+                    this.displayProjectInfo(true);
                 }
                 else
                 {
@@ -109,32 +152,47 @@ namespace RedmineToExcel
             }
 
             displayProjectLists.Clear();
+
+            // ツリービュー
             foreach (var project in this.projectInfo.projects)
             {
-                var status = project.status;
-                var issueStatus = this.issueStatus.issue_statuses.Where(data => data.id == status).FirstOrDefault();
-                // 終了していないプロジェクトの追加
-                if (issueStatus != null && issueStatus.is_closed == false)
+                if (project.parent != null)
                 {
-                    project.isClosed = false;
-                }
-                else
-                {
-                    project.isClosed = true;
-                }
-
-                if (!showClosed)
-                {
-                    if (!project.isClosed)
-                    {
-                        displayProjectLists.Add(project);
-                    }
+                    var parent = this.projectInfo.projects.Where(data => data.id == project.parent.id).FirstOrDefault();
+                    parent.Children.Add(project);
                 }
                 else
                 {
                     displayProjectLists.Add(project);
                 }
             }
+
+            //foreach (var project in this.projectInfo.projects)
+            //{
+            //    var status = project.status;
+            //    var issueStatus = this.issueStatus.issue_statuses.Where(data => data.id == status).FirstOrDefault();
+            //    // 終了していないプロジェクトの追加
+            //    if (issueStatus != null && issueStatus.is_closed == false)
+            //    {
+            //        project.isClosed = false;
+            //    }
+            //    else
+            //    {
+            //        project.isClosed = true;
+            //    }
+
+            //    if (!showClosed)
+            //    {
+            //        if (!project.isClosed)
+            //        {
+            //            displayProjectLists.Add(project);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        displayProjectLists.Add(project);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -142,16 +200,16 @@ namespace RedmineToExcel
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void issueLoadButton_Click(object sender, RoutedEventArgs e)
-        {
-            ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
-            if (item != null)
-            {
-                this.selectedProject = item;
-                this.projectNameLabel.Content = item.name;
-                this.getProjectIssuInfo(item.id);
-            }
-        }
+        //private void issueLoadButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
+        //    if (item != null)
+        //    {
+        //        this.selectedProject = item;
+        //        this.projectNameLabel.Content = item.name;
+        //        this.getProjectIssuInfo(item.id);
+        //    }
+        //}
 
         /// <summary>
         /// 対象プロジェクトのチケット情報を読み込みます
@@ -168,8 +226,7 @@ namespace RedmineToExcel
                 MessageBox.Show("表示しきれていないチケットがあります。取得件数上限（Redmine Api Limit）を増やして再度実行して下さい。");
             }
 
-            projectTermLabel.Content = "( " + this.issueInfo.startDateString + " - " + this.issueInfo.endDateString + " )";
-            
+            TermLabel.Text = "( " + this.issueInfo.startDateString + " ~ " + this.issueInfo.endDateString + " )";
             this.displayIssueInfo(this.issueInfo.issues);
         }
 
@@ -253,8 +310,8 @@ namespace RedmineToExcel
         /// <param name="e"></param>
         private void closedProjectCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
-            this.displayProjectInfo(isChecked);
+            // bool isChecked = this.showClosedProjectCheckBox.IsChecked == null ? false : (bool)this.showClosedProjectCheckBox.IsChecked;
+            this.displayProjectInfo(true);
         }
 
         /// <summary>
@@ -273,15 +330,15 @@ namespace RedmineToExcel
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ProjectOpenInBrowser_Click(object sender, RoutedEventArgs e)
-        {
-            if (listView.SelectedIndex == -1) return;
-            ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
-            if (item != null)
-            {
-                Utility.OpenUrl(RedmineApi.GetProjectUrl(item.id));
-            }
-        }
+        //private void ProjectOpenInBrowser_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (listView.SelectedIndex == -1) return;
+        //    ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
+        //    if (item != null)
+        //    {
+        //        Utility.OpenUrl(RedmineApi.GetProjectUrl(item.id));
+        //    }
+        //}
 
         /// <summary>
         /// 右クリックイベント
@@ -289,15 +346,15 @@ namespace RedmineToExcel
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void IssueOpenInBrowser_Click(object sender, RoutedEventArgs e)
-        {
-            if (issueListView.SelectedIndex == -1) return;
-            Issue item = issueListView.SelectedItem == null ? null : (Issue)issueListView.SelectedItem;
-            if (item != null)
-            {
-                Utility.OpenUrl(RedmineApi.GetIssueUrl(item.id));
-            }
-        }
+        //private void IssueOpenInBrowser_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (issueListView.SelectedIndex == -1) return;
+        //    Issue item = issueListView.SelectedItem == null ? null : (Issue)issueListView.SelectedItem;
+        //    if (item != null)
+        //    {
+        //        Utility.OpenUrl(RedmineApi.GetIssueUrl(item.id));
+        //    }
+        //}
         
         /// <summary>
         /// Excelファイルに出力します
@@ -339,6 +396,31 @@ namespace RedmineToExcel
                 var versionIssues = this.issueInfo.issues.Where(data => data.fixed_version != null && data.fixed_version.id == version.id).ToList();
                 this.displayIssueInfo(versionIssues);
             }
+        }
+
+        private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            
+            var item = this.treeView.SelectedItem as ProjectData;
+            if (item != null)
+            {
+                this.selectedProject = item;
+                this.Title.Text = item.Name;
+                this.getProjectIssuInfo(item.id);
+            }
+
+            // menu close
+            MenuToggleButton.IsChecked = false;
+            
+            
+
+            //    ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
+            //    if (item != null)
+            //    {
+            //        this.selectedProject = item;
+            //        this.projectNameLabel.Content = item.name;
+            //        this.getProjectIssuInfo(item.id);
+            //    }
         }
     }
 }

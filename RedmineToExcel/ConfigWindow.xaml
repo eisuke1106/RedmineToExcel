@@ -24,7 +24,7 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
             <RowDefinition Height="40" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
         </Grid.RowDefinitions>
 
         <Label x:Name="label" Grid.Row="1" Content="Redmine URL：" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
@@ -36,10 +36,15 @@
         <ComboBox x:Name="apiLimitComboBox" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="120" />
 
 
-        <StackPanel Orientation="Horizontal"  Grid.Row="4" Grid.Column="1" Margin="10" HorizontalAlignment="Right">
-            <Button x:Name="cancelButton" Content="キャンセル" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100" Click="cancelButton_Click"/>
-            <Button x:Name="saveButton" Content="保存" HorizontalAlignment="Left" Margin="10,0" VerticalAlignment="Top" Width="100" Click="saveButton_Click"/>
-        </StackPanel>
+        <Grid Grid.Row="4" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="cancelButton" Grid.Column="0" Content="キャンセル" Margin="10" VerticalAlignment="Top" Width="100" Click="cancelButton_Click" Style="{DynamicResource MaterialDesignFlatButton}" />
+            <Button x:Name="saveButton" Grid.Column="2" Content="保存"  Margin="10" VerticalAlignment="Top" Width="100" Click="saveButton_Click" />
+        </Grid>
 
     </Grid>
 </Window>

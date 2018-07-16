@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RedmineToExcel"
+        xmlns:model="clr-namespace:Redmine.Models"
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -15,86 +16,163 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         Title="RedmineToExcel" Height="800" MinHeight="800" Width="1200" MinWidth="1200">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="28" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="20" />
-            <RowDefinition Height="40" />
-        </Grid.RowDefinitions>
+    <materialDesign:DialogHost x:Name="dialogHost" Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
+        <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+            <materialDesign:DrawerHost.LeftDrawerContent>
+                <DockPanel MinWidth="300">
+                    <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" 
+                                    DockPanel.Dock="Top"
+                                    HorizontalAlignment="Right" Margin="16"
+                                    IsChecked="{Binding ElementName=MenuToggleButton, Path=IsChecked, Mode=TwoWay}" />
 
-
-        <Button x:Name="issueLoadButton" Grid.Row="1" Grid.Column="1" Content="チケット読込→" VerticalAlignment="Center" Width="auto" Click="issueLoadButton_Click"/>
-
-        <Label Grid.Row="0" Grid.Column="0" Content="プロジェクト一覧" FontSize="14" Margin="10,0"/>
-        <Button x:Name="reloadButton" Content="再読込" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="75" Margin="0,0,10,0" Click="reloadButton_Click"/>
-
-        <ListView x:Name="listView" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0"  >
-            <ListBox.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Open in Browser" Click="ProjectOpenInBrowser_Click"/>
-                </ContextMenu>
-            </ListBox.ContextMenu>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding id}" Width="40"/>
-                    <GridViewColumn Header="プロジェクト名" DisplayMemberBinding="{Binding name}" Width="200"/>
-                    <GridViewColumn Header="ステータス" DisplayMemberBinding="{Binding statusName}" Width="100"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <CheckBox x:Name="showClosedProjectCheckBox" Grid.Row="2" Content="終了プロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="closedProjectCheckBox_Checked" Unchecked="closedProjectCheckBox_Checked"/>
-        <Button x:Name="settingButton" Content="設定" HorizontalAlignment="Left" Margin="10,0" Grid.Row="3" VerticalAlignment="Center" Width="75" Click="settingButton_Click"/>
-
-
-        <StackPanel  Orientation="Horizontal" Grid.Column="2" Grid.Row="0">
-            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Left">
-                <Label x:Name="projectNameHeader" Content="プロジェクト名：" FontSize="14" Margin="10,0,0,0"/>
-                <Label x:Name="projectNameLabel" Content="-" FontSize="14" Margin="0"/>
-                <Label x:Name="projectTermLabel" Content="-" FontSize="14" Margin="0"/>
-            </StackPanel>
-            <StackPanel  Orientation="Horizontal" Width="300">
-                <Label x:Name="versionNameHeader" Content="バージョン：" FontSize="14" Margin="10,0,0,0"/>
-                <ComboBox x:Name="versionComboBox" Width="220" ItemsSource="{Binding displayVersionLists}" DisplayMemberPath="name" SelectedValuePath="id" SelectionChanged="versionComboBox_SelectionChanged" />
-            </StackPanel>
-        </StackPanel>
+                    <TreeView Grid.Row="1" MinWidth="220" x:Name="treeView" SelectedItemChanged="treeView_SelectedItemChanged">
+                        <TreeView.Resources>
+                            <HierarchicalDataTemplate DataType="{x:Type model:ProjectData}" ItemsSource="{Binding Children}">
+                                <TextBlock Text="{Binding Name}" Margin="3 2" />
+                            </HierarchicalDataTemplate>
+                            <!--<DataTemplate DataType="{x:Type domain:Movie}">
+                                <TextBlock Text="{Binding Name}" Margin="3 2" ToolTip="{Binding Director}" />
+                            </DataTemplate>-->
+                        </TreeView.Resources>
+                    </TreeView>
+                    <!--<TreeView x:Name="TreeView" MinWidth="220">
+                        <TreeView.Resources>
+                            <HierarchicalDataTemplate DataType="{x:Type model:ProjectData}" ItemsSource="{Binding Child}">
+                                <TextBlock Text="{Binding name}" Margin="3 2" />
+                            </HierarchicalDataTemplate>
+                            <DataTemplate DataType="{x:Type model:ProjectData}">
+                                <TextBlock Text="{Binding name}" Margin="3 2" ToolTip="{Binding name}" />
+                            </DataTemplate>
+                        </TreeView.Resources>
+                    </TreeView>-->
 
 
 
-        <ListView x:Name="issueListView" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,10,0"  >
-            <!--<ListView.ItemContainerStyle>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <Setter Property="ToolTip" Value="{Binding Path=tooltip}"/>
-                </Style>
-            </ListView.ItemContainerStyle>-->
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Open in Browser" Click="IssueOpenInBrowser_Click"/>
-                </ContextMenu>
-            </ListView.ContextMenu>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="ID" DisplayMemberBinding="{Binding id}" Width="40"/>
-                    <GridViewColumn Header="チケット名" DisplayMemberBinding="{Binding subject}" Width="200"/>
-                    <GridViewColumn Header="進捗率" DisplayMemberBinding="{Binding done_ratio, StringFormat='{}{0}%'}"  Width="50"/>
-                    <GridViewColumn Header="ステータス" DisplayMemberBinding="{Binding status.name}" Width="80"/>
-                    <GridViewColumn Header="担当者" DisplayMemberBinding="{Binding assignedUser}" Width="100"/>
-                    <GridViewColumn Header="開始日" DisplayMemberBinding="{Binding startDateString}" Width="80"/>
-                    <GridViewColumn Header="終了日" DisplayMemberBinding="{Binding dueDateString}" Width="80"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
-            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
-            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showSubProjectIssueCheckBox" Content="サブプロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="showSubProjectIssueCheckBox_Checked" Unchecked="showSubProjectIssueCheckBox_Checked"/>
-        </StackPanel>
 
-        <Button x:Name="issueLoadButton2" Grid.Column="2" Grid.Row="3" Content="Execl出力" Margin="10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100" Click="OutputExcel_Click"/>
+                </DockPanel>
+            </materialDesign:DrawerHost.LeftDrawerContent>
+            <DockPanel>
+                <materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                            Mode="PrimaryMid" DockPanel.Dock="Top">
+                    <DockPanel>
+                        <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" IsChecked="False"
+                                        x:Name="MenuToggleButton"/>
+                        <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
+                            <StackPanel>
+                                <Button Content="Hello World"/>
+                                <Button Content="Nice Popup"/>
+                                <Button Content="Can't Touch This" IsEnabled="False" />
+                                <Separator/>
+                                <Button Content="設定" Click="settingButton_Click"/>
+                            </StackPanel>
+                        </materialDesign:PopupBox>
+                        <TextBlock x:Name="Title" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="22">RedmineToExcel</TextBlock>
+                        <TextBlock x:Name="TermLabel" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="22" />
+                    </DockPanel>
+                </materialDesign:ColorZone>
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
 
-    </Grid>
+
+                    <!--<Button x:Name="issueLoadButton" Grid.Row="1" Grid.Column="1" Content="チケット読込→" VerticalAlignment="Center" Width="auto" Click="issueLoadButton_Click"/>-->
+
+                    <!--<Label Grid.Row="0" Grid.Column="0" Content="プロジェクト一覧" FontSize="14" Margin="10,0"/>-->
+                    <!--<Button x:Name="reloadButton" Content="再読込" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="75" Margin="0,0,10,0" Click="reloadButton_Click"/>-->
+
+                    <!--<TreeView Name="treeView"  Grid.Row="1">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate DataType="local:Person">
+                                <TextBlock Text="{Binding Name}" />
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>-->
+
+
+
+
+                    <!--<ListView x:Name="listView" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0"  >
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Open in Browser" Click="ProjectOpenInBrowser_Click"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ID" DisplayMemberBinding="{Binding id}" Width="40"/>
+                                <GridViewColumn Header="プロジェクト名" DisplayMemberBinding="{Binding name}" Width="200"/>
+                                <GridViewColumn Header="ステータス" DisplayMemberBinding="{Binding statusName}" Width="100"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>-->
+                    <!--<CheckBox x:Name="showClosedProjectCheckBox" Grid.Row="2" Content="終了プロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="closedProjectCheckBox_Checked" Unchecked="closedProjectCheckBox_Checked"/>-->
+
+
+                    <StackPanel  Orientation="Horizontal" Grid.Row="0">
+                        <StackPanel  Orientation="Horizontal" Width="300">
+                            <Label x:Name="versionNameHeader" Content="バージョン：" FontSize="14" Margin="10,0,0,0"/>
+                            <ComboBox x:Name="versionComboBox" Width="220" ItemsSource="{Binding displayVersionLists}" DisplayMemberPath="name" SelectedValuePath="id" SelectionChanged="versionComboBox_SelectionChanged" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ItemsControl x:Name="IssueView" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" >
+                        <ItemsControl.Template>
+                            <ControlTemplate>
+                                <ScrollViewer x:Name="ScrollViewer" Padding="{TemplateBinding Padding}">
+                                    <Border BorderThickness="0,0.5,0,0" BorderBrush="Gray" >
+                                        <ItemsPresenter/>
+                                    </Border>
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ItemsControl.Template>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="0,0,0,0.5" BorderBrush="Gray" >
+                                    <local:TicketView></local:TicketView>
+                                </Border>
+                            </DataTemplate>
+                            
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+       
+
+                    <!--<ListView x:Name="issueListView" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,10,0"  >
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Open in Browser" Click="IssueOpenInBrowser_Click"/>
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ID" DisplayMemberBinding="{Binding id}" Width="40"/>
+                                <GridViewColumn Header="チケット名" DisplayMemberBinding="{Binding subject}" Width="200"/>
+                                <GridViewColumn Header="進捗率" DisplayMemberBinding="{Binding done_ratio, StringFormat='{}{0}%'}"  Width="50"/>
+                                <GridViewColumn Header="ステータス" DisplayMemberBinding="{Binding status.name}" Width="80"/>
+                                <GridViewColumn Header="担当者" DisplayMemberBinding="{Binding assignedUser}" Width="100"/>
+                                <GridViewColumn Header="開始日" DisplayMemberBinding="{Binding startDateString}" Width="80"/>
+                                <GridViewColumn Header="終了日" DisplayMemberBinding="{Binding dueDateString}" Width="80"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>-->
+
+                    <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
+                        <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
+                        <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showSubProjectIssueCheckBox" Content="サブプロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="showSubProjectIssueCheckBox_Checked" Unchecked="showSubProjectIssueCheckBox_Checked"/>
+                    </StackPanel>
+
+                    <Button x:Name="issueLoadButton2" Grid.Column="2" Grid.Row="3" Content="Execl出力" Margin="10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100" Click="OutputExcel_Click"/>
+
+                </Grid>
+            </DockPanel>
+        </materialDesign:DrawerHost>
+    </materialDesign:DialogHost>
+
+
+
+
 </Window>

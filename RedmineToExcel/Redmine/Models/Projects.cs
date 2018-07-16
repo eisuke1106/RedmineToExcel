@@ -7,26 +7,28 @@ using System.Threading.Tasks;
 
 namespace Redmine.Models
 {
-    class Projects
+    public class Projects
     {
         public List<ProjectData> projects { get; set; }
     }
 
-    class Project
+    public class Project
     {
         public ProjectData project { get; set; }
     }
 
-    class ProjectData
+    public class ProjectData
     {
         public int id { get; set; }
-        public string name { get; set; } 
+        public string Name { get; set; }
         public string identifier { get; set; }
         public string description { get; set; }
         public int status { get; set; }
         public DateTime created_on { get; set; }
         public DateTime updated_on { get; set; }
         public Boolean is_public { get; set; }
+        public Info parent { get; set; }
+        public List<ProjectData> Children { get; set; } = new List<ProjectData>();
 
         [JsonIgnore]
         public bool isClosed { get; set; }

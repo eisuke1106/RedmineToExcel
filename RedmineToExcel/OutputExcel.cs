@@ -118,7 +118,7 @@ namespace RedmineToExcel
                         int offset = 5;
 
                         // プロジェクト名
-                        ws.Cell(2, 2).Value = this.projectData.name;
+                        ws.Cell(2, 2).Value = this.projectData.Name;
 
                         // 行生成
                         ws.Row(offset).InsertRowsBelow(issues.Count - 1);
@@ -165,6 +165,7 @@ namespace RedmineToExcel
                             {
                                 ws.Cell(i + offset, 9).Hyperlink = new XLHyperlink(Settings.Instance.redmineUrl + "/issues/" + targetIssue.parent.id);
                             }
+                            ws.Cell(i + offset, 10).Value = targetIssue.tracker.name;
                         }
 
                         using (var ws2 = wb.Worksheet("設定シート"))
@@ -185,7 +186,7 @@ namespace RedmineToExcel
 
                         // ファイル出力
                         string savePath = string.Empty;
-                        string fileName = "[" + this.projectData.name + "]" + "開発線表_" + DateTime.Now.Date.ToString("yyyyMMdd");
+                        string fileName = "[" + this.projectData.Name + "]" + "開発線表_" + DateTime.Now.Date.ToString("yyyyMMdd");
                         if (Utility.OpenFileDialog(fileName, ref savePath))
                         {
                             wb.SaveAs(savePath);

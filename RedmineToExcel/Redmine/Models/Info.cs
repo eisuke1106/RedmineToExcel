@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Redmine.Models
 {
-    class Info
+    public class Info
     {
         public int id { get; set; }
         public string name { get; set; }

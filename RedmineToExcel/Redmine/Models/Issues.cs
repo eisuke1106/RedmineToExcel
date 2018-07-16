@@ -102,6 +102,13 @@ namespace Redmine.Models
     class Issue
     {
         public int id { get; set; }
+        public string IdLabel
+        {
+            get
+            {
+                return "#" + id;
+            }
+        }
         public Info project { get; set; }
         public Info tracker { get; set; }
         public Info status { get; set; }
@@ -113,7 +120,7 @@ namespace Redmine.Models
         {
             get
             {
-                if (assigned_to == null)
+                if (assigned_to == null || assigned_to.name == string.Empty)
                 {
                     return "-";
                 }
