@@ -167,6 +167,7 @@ namespace RedmineToExcel
                             }
                             ws.Cell(i + offset, 10).Value = targetIssue.tracker.name;
                         }
+                        ws.Cell(issues.Count + offset + 1, 1).Value = "■";
 
                         using (var ws2 = wb.Worksheet("設定シート"))
                         {
@@ -174,7 +175,7 @@ namespace RedmineToExcel
                             if (this.issueInfo.startDateString != "")
                             {
                                 ws2.Cell(3, 3).Value = this.issueInfo.startDateString;
-                                ws2.Cell(4, 3).Value = this.issueInfo.projectTerm;
+                                ws2.Cell(4, 3).Value = this.issueInfo.endDateString;
                             }
                         }
 
