@@ -57,7 +57,7 @@ namespace RedmineToExcel
             //this.listView.ItemsSource = displayProjectLists;
 
             //this.TreeView.ItemsSource = displayProjectLists;
-            this.IssueView.ItemsSource = displayIssueList;
+            this.issueListView.ItemsSource = displayIssueList;
             this.versionComboBox.ItemsSource = displayVersionList;
 
             //this.treeView.ItemsSource = new List<ProjectData>
@@ -211,41 +211,8 @@ namespace RedmineToExcel
         //    }
         //}
 
-        /// <summary>
-        /// 対象プロジェクトのチケット情報を読み込みます
-        /// </summary>
-        /// <param name="projectId"></param>
-        private void getProjectIssuInfo(int projectId)
-        {
-            this.issueInfo = RedmineApi.GetProjectIssues(projectId);
-            this.versions = RedmineApi.GetProjectVersions(projectId);
-            this.displayVersionsInfo();
 
-            if (issueInfo.existMore)
-            {
-                MessageBox.Show("表示しきれていないチケットがあります。取得件数上限（Redmine Api Limit）を増やして再度実行して下さい。");
-            }
 
-            TermLabel.Text = "( " + this.issueInfo.startDateString + " ~ " + this.issueInfo.endDateString + " )";
-            this.displayIssueInfo(this.issueInfo.issues);
-        }
-
-        private void displayVersionsInfo()
-        {
-            displayVersionList.Clear();
-
-            VersionData noVersion = new VersionData();
-            noVersion.id = -1;
-            noVersion.name = "全体";
-            displayVersionList.Add(noVersion);
-
-            foreach ( var version in this.versions.versions)
-            {
-                displayVersionList.Add(version);
-            }
-
-            this.versionComboBox.SelectedIndex = 0;
-        }
 
         /// <summary>
         /// 画面表示用のチケット情報に調整します
@@ -253,8 +220,8 @@ namespace RedmineToExcel
         /// <param name="showClosed">終了チケットの表示・非表示</param>
         private void displayIssueInfo(List<Issue> issues)
         {
-            bool showClosed = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
-            bool showSubProject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
+            // bool showClosed = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
+            // bool showSubProject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
 
             if (issues == null){
                 return;
@@ -269,38 +236,42 @@ namespace RedmineToExcel
 
             List<Issue> tempList = new List<Issue>();
 
-            foreach (var issue in issues)
+            foreach( var issue in issues)
             {
-                if (!showSubProject)
-                {
-                    if (this.selectedProject.id == issue.project.id)
-                    {
-                        tempList.Add(issue);
-                    }
-                }
-                else
-                {
-                    tempList.Add(issue);
-                }
+                displayIssueList.Add(issue);
             }
+            //foreach (var issue in issues)
+            //{
+            //    if (!showSubProject)
+            //    {
+            //        if (this.selectedProject.id == issue.project.id)
+            //        {
+            //            tempList.Add(issue);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        tempList.Add(issue);
+            //    }
+            //}
 
-            foreach (var issue in tempList)
-            {
-                if (!showClosed)
-                {
-                    int status = issue.status.id;
-                    var issueStatus = this.issueStatus.issue_statuses.Where(data => data.id == status && data.is_closed == false).FirstOrDefault();
-                    // 終了していないプロジェクトの追加
-                    if (issueStatus != null)
-                    {
-                        displayIssueList.Add(issue);
-                    }
-                }
-                else
-                {
-                    displayIssueList.Add(issue);
-                }
-            }
+            //foreach (var issue in tempList)
+            //{
+            //    if (!showClosed)
+            //    {
+            //        int status = issue.status.id;
+            //        var issueStatus = this.issueStatus.issue_statuses.Where(data => data.id == status && data.is_closed == false).FirstOrDefault();
+            //        // 終了していないプロジェクトの追加
+            //        if (issueStatus != null)
+            //        {
+            //            displayIssueList.Add(issue);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        displayIssueList.Add(issue);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -344,18 +315,18 @@ namespace RedmineToExcel
         /// 右クリックイベント
         /// チケット情報をブラウザで開きます
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void IssueOpenInBrowser_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (issueListView.SelectedIndex == -1) return;
-        //    Issue item = issueListView.SelectedItem == null ? null : (Issue)issueListView.SelectedItem;
-        //    if (item != null)
-        //    {
-        //        Utility.OpenUrl(RedmineApi.GetIssueUrl(item.id));
-        //    }
-        //}
-        
+        /// <param name = "sender" ></ param >
+        /// < param name="e"></param>
+        private void IssueOpenInBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            if (issueListView.SelectedIndex == -1) return;
+            Issue item = issueListView.SelectedItem == null ? null : (Issue)issueListView.SelectedItem;
+            if (item != null)
+            {
+                Utility.OpenUrl(RedmineApi.GetIssueUrl(item.id));
+            }
+        }
+
         /// <summary>
         /// Excelファイルに出力します
         /// </summary>
@@ -383,44 +354,89 @@ namespace RedmineToExcel
             this.displayIssueInfo(this.issueInfo.issues);
         }
 
-        private void versionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            int selectedIndex = this.versionComboBox.SelectedIndex;
-            if ( selectedIndex <= 0)
-            {
-                this.displayIssueInfo(this.issueInfo.issues);
-            }
-            else
-            {
-                var version = this.versions.versions[selectedIndex - 1];
-                var versionIssues = this.issueInfo.issues.Where(data => data.fixed_version != null && data.fixed_version.id == version.id).ToList();
-                this.displayIssueInfo(versionIssues);
-            }
-        }
+   
 
+        /// <summary>
+        /// ツリー選択
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            
             var item = this.treeView.SelectedItem as ProjectData;
             if (item != null)
             {
                 this.selectedProject = item;
                 this.Title.Text = item.Name;
-                this.getProjectIssuInfo(item.id);
+                this.versions = RedmineApi.GetProjectVersions(item.id);
+                this.displayVersionsInfo();
             }
 
             // menu close
             MenuToggleButton.IsChecked = false;
-            
-            
+        
+        }
 
-            //    ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
-            //    if (item != null)
-            //    {
-            //        this.selectedProject = item;
-            //        this.projectNameLabel.Content = item.name;
-            //        this.getProjectIssuInfo(item.id);
-            //    }
+        /// <summary>
+        /// バージョン表示
+        /// </summary>
+        private void displayVersionsInfo()
+        {
+            displayVersionList.Clear();
+
+            VersionData noVersion = new VersionData()
+            {
+                id = 0,
+                name = "全体"
+            };
+            displayVersionList.Add(noVersion);
+
+            foreach (var version in this.versions.versions)
+            {
+                displayVersionList.Add(version);
+            }
+
+            this.versionComboBox.SelectedIndex = 0;
+        }
+
+        /// <summary>
+        /// バージョンコンボボックス変更イベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void versionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var item = this.versionComboBox.SelectedItem;
+            if (item != null)
+            {
+                VersionData version = item as VersionData;
+                this.getProjectIssuInfo(this.selectedProject.id, version.id);
+            }
+        }
+
+
+        /// <summary>
+        /// 対象プロジェクトのチケット情報を読み込みます
+        /// </summary>
+        /// <param name="projectId"></param>
+        private void getProjectIssuInfo(int projectId, int versionNo)
+        {
+            if (versionNo == 0)
+            {
+                this.issueInfo = RedmineApi.GetProjectIssues(projectId);
+            }
+            else
+            {
+                this.issueInfo = RedmineApi.GetProjectIssuesWithVersion(projectId, versionNo);
+            }
+
+            if (issueInfo.existMore)
+            {
+                MessageBox.Show("表示しきれていないチケットがあります。取得件数上限（Redmine Api Limit）を増やして再度実行して下さい。");
+            }
+
+            TermLabel.Text = "( " + this.issueInfo.startDateString + " ~ " + this.issueInfo.endDateString + " )";
+            this.displayIssueInfo(this.issueInfo.issues);
         }
     }
 }

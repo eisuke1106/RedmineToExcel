@@ -14,6 +14,7 @@ namespace RedmineToExcel
         private Issues issueInfo;
         private IssuesStatus issueStatus;
         private ProjectData projectData;
+        private List<Issue> issueList;
 
         /// <summary>
         /// コンストラクタ

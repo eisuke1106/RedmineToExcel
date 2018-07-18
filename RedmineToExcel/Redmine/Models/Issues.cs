@@ -181,6 +181,23 @@ namespace Redmine.Models
         public int done_ratio { get; set; }
         public DateTime created_on { get; set; }
         public DateTime updated_on { get; set; }
+        public DateTime closed_on { get; set; }
+
+        [JsonIgnore]
+        public bool isClosed
+        {
+            get
+            {
+                if (closed_on == DateTime.MinValue)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
 
         [JsonIgnore]
         public List<Issue> children = new List<Issue>();

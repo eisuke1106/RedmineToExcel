@@ -108,14 +108,14 @@ namespace Redmine
             }
         }
 
-        private static string projectIssuesEPjson = @"/issues.json?project_id={0}&status_id=*";
+        private static string projectIssuesEPjson = @"";
 
         public static Issues GetProjectIssues(int projectId)
         {
             try
             {
                 Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
-                string url = string.Format(baseUrl + projectIssuesEPjson + "&key=" + apiKey, projectId);
+                string url = string.Format($"{baseUrl}/issues.json?project_id={projectId}&status_id=*&sort=category:desc&key={apiKey}");
                 var response = GetApi(url);
                 var result = JsonConvert.DeserializeObject<Issues>(response);
                 return result;
@@ -126,14 +126,30 @@ namespace Redmine
             }
         }
 
-        private static string issuesStatusEPjson = @"/issue_statuses.json";
+        public static Issues GetProjectIssuesWithVersion(int projectId, int version)
+        {
+            try
+            {
+                Debug.WriteLine($"[Redmine]プロジェクト情報[ID:{projectId}][Ver:{version}]を取得します。");
+                string url = string.Format($"{baseUrl}/issues.json?project_id={projectId}&status_id=*&fixed_version_id={version}&sort=category:desc&key={apiKey}");
+                var response = GetApi(url);
+                var result = JsonConvert.DeserializeObject<Issues>(response);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private static string issuesStatusEPjson = @"";
 
         public static IssuesStatus GetIssueStatus()
         {
             try
             {
                 Debug.WriteLine("[Redmine]ステータス情報を取得します。");
-                string url = string.Format(baseUrl + issuesStatusEPjson + "?key=" + apiKey);
+                string url = string.Format($"{baseUrl}/issue_statuses.json?key={apiKey}");
                 var response = GetApi(url);
                 var result = JsonConvert.DeserializeObject<IssuesStatus>(response);
                 return result;
