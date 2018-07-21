@@ -132,15 +132,17 @@ namespace RedmineToExcel
                             ws.Cell(i + offset, 1).Value = i + 1;
                             // タイトル
 
-                            // ws.Cell(i + offset, 2).Value = targetIssue.subject;
-                            // ws.Cell(i + offset, 2).Style.Alignment.Indent = targetIssue.indent;
+                            ws.Cell(i + offset, 2).Value = targetIssue.subject;
+                            ws.Cell(i + offset, 2).Style.Alignment.Indent = targetIssue.indent;
 
-                            string space = string.Empty;
-                            for (int indent = 1; indent < targetIssue.indent; indent++)
-                            {
-                                space += "　";
-                            }
-                            ws.Cell(i + offset, 2).Value = space + targetIssue.indentUnit + targetIssue.subject;
+                            // * Tree表記 *
+                            //string space = string.Empty;
+                            //for (int indent = 1; indent < targetIssue.indent; indent++)
+                            //{
+                            //    space += "　";
+                            //}
+                            //ws.Cell(i + offset, 2).Value = space + targetIssue.indentUnit + targetIssue.subject;
+                            // 
 
                             // 開始日
                             ws.Cell(i + offset, 3).Value = targetIssue.startDateString;
@@ -167,6 +169,10 @@ namespace RedmineToExcel
                                 ws.Cell(i + offset, 9).Hyperlink = new XLHyperlink(Settings.Instance.redmineUrl + "/issues/" + targetIssue.parent.id);
                             }
                             ws.Cell(i + offset, 10).Value = targetIssue.tracker.name;
+
+                            ws.Cell(i + offset, 11).Value = targetIssue.isClosed == true ? 1 : 0;
+
+                            ws.Column(11).Hide();
                         }
                         ws.Cell(issues.Count + offset + 1, 1).Value = "■";
 

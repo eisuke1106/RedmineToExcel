@@ -98,15 +98,6 @@ namespace RedmineToExcel
             };
         }
 
-        /// <summary>
-        /// 再読込ボタンイベント
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void reloadButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.getProjectInfo();
-        }
 
         /// <summary>
         /// プロジェクト情報を取得します
@@ -438,5 +429,23 @@ namespace RedmineToExcel
             TermLabel.Text = "( " + this.issueInfo.startDateString + " ~ " + this.issueInfo.endDateString + " )";
             this.displayIssueInfo(this.issueInfo.issues);
         }
+
+
+
+        /// <summary>
+        /// 再読込ボタンイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            var item = this.versionComboBox.SelectedItem;
+            if (item != null)
+            {
+                VersionData version = item as VersionData;
+                this.getProjectIssuInfo(this.selectedProject.id, version.id);
+            }
+        }
+
     }
 }

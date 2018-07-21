@@ -81,8 +81,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="0" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="20" />
-                        <RowDefinition Height="40" />
+                        <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
 
 
@@ -181,12 +180,32 @@
                         </ListView.View>
                     </ListView>
 
-                    <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
-                        <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
-                        <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showSubProjectIssueCheckBox" Content="サブプロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Top" Checked="showSubProjectIssueCheckBox_Checked" Unchecked="showSubProjectIssueCheckBox_Checked"/>
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+
+                            <Button x:Name="ReloadButton" Padding="5" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="ReloadButton_Click">
+                                <Viewbox>
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="M19,12H22.32L17.37,16.95L12.42,12H16.97C17,10.46 16.42,8.93 15.24,7.75C12.9,5.41 9.1,5.41 6.76,7.75C4.42,10.09 4.42,13.9 6.76,16.24C8.6,18.08 11.36,18.47 13.58,17.41L15.05,18.88C12,20.69 8,20.29 5.34,17.65C2.22,14.53 2.23,9.47 5.35,6.35C8.5,3.22 13.53,3.21 16.66,6.34C18.22,7.9 19,9.95 19,12Z" Fill="White" />
+                                    </Canvas>
+                                </Viewbox>
+                            </Button>
+                        
+                            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
+                            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showSubProjectIssueCheckBox"  Content="サブプロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="showSubProjectIssueCheckBox_Checked" Unchecked="showSubProjectIssueCheckBox_Checked"/>
+                    
                     </StackPanel>
 
-                    <Button x:Name="issueLoadButton2" Grid.Column="2" Grid.Row="3" Content="Execl出力" Margin="10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100" Click="OutputExcel_Click"/>
+                    <Button x:Name="issueLoadButton2" Grid.Column="2" Content="Execl出力" Margin="10,0" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100" Click="OutputExcel_Click"/>
+
+
+                    </Grid>
+
 
                 </Grid>
             </DockPanel>
