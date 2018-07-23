@@ -196,7 +196,7 @@
                                 </Viewbox>
                             </Button>
                         
-                            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
+                            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを隠す" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
                             <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showSubProjectIssueCheckBox"  Content="サブプロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="showSubProjectIssueCheckBox_Checked" Unchecked="showSubProjectIssueCheckBox_Checked"/>
                     
                     </StackPanel>

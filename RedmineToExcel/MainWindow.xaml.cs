@@ -53,43 +53,8 @@ namespace RedmineToExcel
         public MainWindow()
         {
             InitializeComponent();
-
-            //this.listView.ItemsSource = displayProjectLists;
-
-            //this.TreeView.ItemsSource = displayProjectLists;
             this.issueListView.ItemsSource = displayIssueList;
             this.versionComboBox.ItemsSource = displayVersionList;
-
-            //this.treeView.ItemsSource = new List<ProjectData>
-            //{
-            //    new ProjectData
-            //    {
-            //        Name = "田中　太郎",
-            //        Children = new List<ProjectData>
-            //        {
-            //            new ProjectData { Name = "田中　花子" },
-            //            new ProjectData { Name = "田中　一郎" },
-            //            new ProjectData
-            //            {
-            //                Name = "木村　貫太郎",
-            //                Children = new List<ProjectData>
-            //                {
-            //                    new ProjectData { Name = "木村　はな" },
-            //                    new ProjectData { Name = "木村　梅" },
-            //                }
-            //            }
-            //        }
-            //    },
-            //    new ProjectData
-            //    {
-            //        Name = "田中　次郎",
-            //        Children = new List<ProjectData>
-            //        {
-            //            new ProjectData { Name = "田中　三郎" }
-            //        }
-            //    }
-            //};
-
 
             ContentRendered += (s, e) =>
             {
@@ -97,7 +62,6 @@ namespace RedmineToExcel
                 this.treeView.ItemsSource = displayProjectLists;
             };
         }
-
 
         /// <summary>
         /// プロジェクト情報を取得します
@@ -214,7 +178,7 @@ namespace RedmineToExcel
             // bool showClosed = this.showClosedIssueCheckBox.IsChecked == null ? false : (bool)this.showClosedIssueCheckBox.IsChecked;
             // bool showSubProject = this.showSubProjectIssueCheckBox.IsChecked == null ? false : (bool)this.showSubProjectIssueCheckBox.IsChecked;
 
-            if (issues == null){
+            if (issues == null) {
                 return;
             }
 
@@ -222,12 +186,12 @@ namespace RedmineToExcel
             {
                 return;
             }
-            
+
             displayIssueList.Clear();
 
             List<Issue> tempList = new List<Issue>();
 
-            foreach( var issue in issues)
+            foreach (var issue in issues)
             {
                 displayIssueList.Add(issue);
             }
@@ -283,24 +247,22 @@ namespace RedmineToExcel
         /// <param name="e"></param>
         private void closedIssueCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            this.displayIssueInfo(this.issueInfo.issues);
-        }
+            if (this.issueInfo == null)
+            {
+                return;
+            }
 
-        /// <summary>
-        /// 右クリックイベント
-        /// プロジェクト情報をブラウザで開きます
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void ProjectOpenInBrowser_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (listView.SelectedIndex == -1) return;
-        //    ProjectData item = listView.SelectedItem == null ? null : (ProjectData)listView.SelectedItem;
-        //    if (item != null)
-        //    {
-        //        Utility.OpenUrl(RedmineApi.GetProjectUrl(item.id));
-        //    }
-        //}
+            var checkBox = sender as CheckBox;
+            if (checkBox.IsChecked == true)
+            {
+                var newList = this.issueInfo.issues.Where(data => data.isClosed == false).ToList();
+                this.displayIssueInfo(newList);
+            }
+            else
+            {
+                this.displayIssueInfo(this.issueInfo.issues);
+            }
+        }
 
         /// <summary>
         /// 右クリックイベント
@@ -344,8 +306,6 @@ namespace RedmineToExcel
         {
             this.displayIssueInfo(this.issueInfo.issues);
         }
-
-   
 
         /// <summary>
         /// ツリー選択
@@ -404,8 +364,7 @@ namespace RedmineToExcel
                 this.getProjectIssuInfo(this.selectedProject.id, version.id);
             }
         }
-
-
+        
         /// <summary>
         /// 対象プロジェクトのチケット情報を読み込みます
         /// </summary>
