@@ -110,15 +110,48 @@ namespace Redmine
 
         private static string projectIssuesEPjson = @"";
 
-        public static Issues GetProjectIssues(int projectId)
+        public static Issues GetProjectIssues(int projectId, bool includeSubProject = false)
         {
             try
             {
-                Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
-                string url = string.Format($"{baseUrl}/issues.json?project_id={projectId}&status_id=*&sort=category:desc&key={apiKey}");
-                var response = GetApi(url);
-                var result = JsonConvert.DeserializeObject<Issues>(response);
-                return result;
+                List<Issues> issues = new List<Issues>();
+                int offset = 0;
+
+                while (true)
+                {
+                    Debug.WriteLine("[Redmine]プロジェクト情報(" + projectId + ")を取得します。");
+                    string url = string.Format($"{baseUrl}/issues.json?limit=100&offset={offset}&project_id={projectId}&status_id=*&sort=category:desc&key={apiKey}");
+                    var response = GetApi(url);
+                    var result = JsonConvert.DeserializeObject<Issues>(response);
+                    if (includeSubProject == false)
+                    {
+                        result.issues = result.issues.Where(data => data.project.id == projectId).ToList();
+                    }
+                    issues.Add(result);
+
+                    if (result.total_count > result.limit + result.offset)
+                    {
+                        offset += 100;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if (issues.Count == 1)
+                {
+                    return issues[0];
+                }
+                else
+                {
+                    var baseIssues = issues[0];
+                    foreach ( var issue in issues)
+                    {
+                        baseIssues.issues.AddRange(issue.issues);
+                    }
+                    return baseIssues;
+                }
             }
             catch (Exception)
             {
@@ -130,11 +163,40 @@ namespace Redmine
         {
             try
             {
-                Debug.WriteLine($"[Redmine]プロジェクト情報[ID:{projectId}][Ver:{version}]を取得します。");
-                string url = string.Format($"{baseUrl}/issues.json?project_id={projectId}&status_id=*&fixed_version_id={version}&sort=category:desc&key={apiKey}");
-                var response = GetApi(url);
-                var result = JsonConvert.DeserializeObject<Issues>(response);
-                return result;
+                List<Issues> issues = new List<Issues>();
+                int offset = 0;
+
+                while (true)
+                {
+                    Debug.WriteLine($"[Redmine]プロジェクト情報[ID:{projectId}][Ver:{version}]を取得します。");
+                    string url = string.Format($"{baseUrl}/issues.json?limit=100&offset={offset}&project_id={projectId}&status_id=*&fixed_version_id={version}&sort=category:desc&key={apiKey}");
+                    var response = GetApi(url);
+                    var result = JsonConvert.DeserializeObject<Issues>(response);
+                    issues.Add(result);
+
+                    if (result.total_count > result.limit + result.offset)
+                    {
+                        offset += 100;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if (issues.Count == 1)
+                {
+                    return issues[0];
+                }
+                else
+                {
+                    var baseIssues = issues[0];
+                    foreach (var issue in issues)
+                    {
+                        baseIssues.issues.AddRange(issue.issues);
+                    }
+                    return baseIssues;
+                }
             }
             catch (Exception)
             {

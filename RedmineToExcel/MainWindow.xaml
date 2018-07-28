@@ -14,47 +14,50 @@
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        Title="RedmineToExcel" Height="800" MinHeight="800" Width="1200" MinWidth="1200">
+        Title="RedmineToExcel" Height="800"  Width="1200" >
 
     <materialDesign:DialogHost x:Name="dialogHost" Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
         <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
             <materialDesign:DrawerHost.LeftDrawerContent>
-                <DockPanel MinWidth="300">
-                    <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" 
-                                    DockPanel.Dock="Top"
+                <Grid Width="400">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="68" />
+                        <RowDefinition Height="*"  />
+                        <RowDefinition Height="70" />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{DynamicResource PrimaryHueMidBrush}">
+                    <ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}" Foreground="White" 
                                     HorizontalAlignment="Right" Margin="16"
                                     IsChecked="{Binding ElementName=MenuToggleButton, Path=IsChecked, Mode=TwoWay}" />
+                    </Border>
+                    <Border Grid.Row="1" BorderBrush="DimGray" BorderThickness="0,1,0,1" Padding="0,0,0,0">
+                        <TreeView x:Name="treeView"  SelectedItemChanged="treeView_SelectedItemChanged" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
+                                    <Setter Property="IsExpanded" Value="True" />
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                            <TreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type model:ProjectData}" ItemsSource="{Binding Children}">
+                                    <TextBlock Text="{Binding Name}" Margin="3 2" />
+                                </HierarchicalDataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                    </Border>
 
-                    <TreeView Grid.Row="1" MinWidth="220" x:Name="treeView" SelectedItemChanged="treeView_SelectedItemChanged">
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
-                                <Setter Property="IsExpanded" Value="True" />
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                        <TreeView.Resources>
-                            <HierarchicalDataTemplate DataType="{x:Type model:ProjectData}" ItemsSource="{Binding Children}">
-                                <TextBlock Text="{Binding Name}" Margin="3 2" />
-                            </HierarchicalDataTemplate>
-                            <!--<DataTemplate DataType="{x:Type domain:Movie}">
-                                <TextBlock Text="{Binding Name}" Margin="3 2" ToolTip="{Binding Director}" />
-                            </DataTemplate>-->
-                        </TreeView.Resources>
-                    </TreeView>
-                    <!--<TreeView x:Name="TreeView" MinWidth="220">
-                        <TreeView.Resources>
-                            <HierarchicalDataTemplate DataType="{x:Type model:ProjectData}" ItemsSource="{Binding Child}">
-                                <TextBlock Text="{Binding name}" Margin="3 2" />
-                            </HierarchicalDataTemplate>
-                            <DataTemplate DataType="{x:Type model:ProjectData}">
-                                <TextBlock Text="{Binding name}" Margin="3 2" ToolTip="{Binding name}" />
-                            </DataTemplate>
-                        </TreeView.Resources>
-                    </TreeView>-->
-
-
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="20,10">
+                        <Button x:Name="ReloadProjectButton" Padding="5" VerticalAlignment="Center" VerticalContentAlignment="Center">
+                            <Viewbox>
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="M19,12H22.32L17.37,16.95L12.42,12H16.97C17,10.46 16.42,8.93 15.24,7.75C12.9,5.41 9.1,5.41 6.76,7.75C4.42,10.09 4.42,13.9 6.76,16.24C8.6,18.08 11.36,18.47 13.58,17.41L15.05,18.88C12,20.69 8,20.29 5.34,17.65C2.22,14.53 2.23,9.47 5.35,6.35C8.5,3.22 13.53,3.21 16.66,6.34C18.22,7.9 19,9.95 19,12Z" Fill="White" />
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+                        <CheckBox x:Name="hideClosedProjectButton"  Background="Gray" Content="終了プロジェクトを隠す" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="hideClosedProjectButton_Checked" Unchecked="hideClosedProjectButton_Checked" />
+                    </StackPanel>
 
 
-                </DockPanel>
+                </Grid>
             </materialDesign:DrawerHost.LeftDrawerContent>
             <DockPanel>
                 <materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
@@ -64,10 +67,6 @@
                                         x:Name="MenuToggleButton"/>
                         <materialDesign:PopupBox DockPanel.Dock="Right" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
                             <StackPanel>
-                                <Button Content="Hello World"/>
-                                <Button Content="Nice Popup"/>
-                                <Button Content="Can't Touch This" IsEnabled="False" />
-                                <Separator/>
                                 <Button Content="設定" Click="settingButton_Click"/>
                             </StackPanel>
                         </materialDesign:PopupBox>
@@ -137,22 +136,12 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>-->
-       
+
 
                     <ListView x:Name="issueListView" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,10,0"  >
-
-                        <!--<ListView.Resources>
-                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignGridViewItem}">
-                                --><!--<Style.Triggers>
-                                    <DataTrigger Binding="{Binding isClosed}" Value="true">
-                                    </DataTrigger>
-                                </Style.Triggers>--><!--
-                                <Setter Property="Background" Value="Gray" />
-                            </Style>
-                        </ListView.Resources>-->
                         <ListView.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Open in Browser" Click="IssueOpenInBrowser_Click"/>
+                                <MenuItem Header="ブラウザで開く" Click="IssueOpenInBrowser_Click"/>
                             </ContextMenu>
                         </ListView.ContextMenu>
                         <ListView.ItemContainerStyle>
@@ -195,11 +184,9 @@
                                     </Canvas>
                                 </Viewbox>
                             </Button>
-                        
+
                             <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showClosedIssueCheckBox" Content="終了チケットを隠す" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="closedIssueCheckBox_Checked" Unchecked="closedIssueCheckBox_Checked"/>
-                            <CheckBox Grid.Column="2" Grid.Row="2" x:Name="showSubProjectIssueCheckBox"  Content="サブプロジェクトを含む" HorizontalAlignment="Left" Margin="10,2" VerticalAlignment="Center" Checked="showSubProjectIssueCheckBox_Checked" Unchecked="showSubProjectIssueCheckBox_Checked"/>
-                    
-                    </StackPanel>
+                        </StackPanel>
 
                     <Button x:Name="issueLoadButton2" Grid.Column="2" Content="Execl出力" Margin="10,0" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100" Click="OutputExcel_Click"/>
 

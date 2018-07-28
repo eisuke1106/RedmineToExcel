@@ -15,20 +15,6 @@ namespace Redmine.Models
         public int limit { get; set; }
 
         [JsonIgnore]
-        public bool existMore
-        {
-            get
-            {
-                if (this.total_count > this.limit)
-                {
-                    return true;
-                }
-                return false;
-
-            }
-        }
-
-        [JsonIgnore]
         public string startDateString
         {
             get

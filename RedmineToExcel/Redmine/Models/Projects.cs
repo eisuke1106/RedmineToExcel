@@ -4,12 +4,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Redmine.Models
 {
     public class Projects
     {
         public List<ProjectData> projects { get; set; }
+
+        [JsonIgnore]
+        public List<ProjectData> excludeEndProjects
+        {
+            get
+            {
+                if (this.projects == null)
+                {
+                    return null;
+                }
+
+                return this.projects.Where(data => data.isClosed == false).ToList();
+            }
+        }
     }
 
     public class Project
@@ -31,7 +46,28 @@ namespace Redmine.Models
         public List<ProjectData> Children { get; set; } = new List<ProjectData>();
 
         [JsonIgnore]
-        public bool isClosed { get; set; }
+        public bool isClosed {
+            get
+            {
+                if (this.status == 5) return true;
+                else return false;
+            }
+        }
+
+        [JsonIgnore]
+        public bool isExpanded { get; set; }
+
+        public Visibility isVisible {
+        get
+            {
+                if (this.isClosed)
+                {
+                    return Visibility.Collapsed;
+                }
+                else return Visibility.Visible;
+            }
+        }
+
 
         [JsonIgnore]
         public string statusName
