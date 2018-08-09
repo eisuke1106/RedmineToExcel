@@ -138,7 +138,7 @@
                     </ItemsControl>-->
 
 
-                    <ListView x:Name="issueListView" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,10,0"  >
+                    <ListView x:Name="issueListView" Grid.Row="1"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,10,0"  >
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="ブラウザで開く" Click="IssueOpenInBrowser_Click"/>
@@ -146,10 +146,14 @@
                         </ListView.ContextMenu>
                         <ListView.ItemContainerStyle>
                             <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource MaterialDesignGridViewItem}">
+                                <Setter Property="Focusable" Value="false"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding isClosed}" Value="true">
-                                        <Setter Property="Background" Value="LightGray" />
+                                        <Setter Property="Background" Value="#CCC" />
                                     </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}" />
+                                    </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </ListView.ItemContainerStyle>
