@@ -171,8 +171,12 @@ namespace RedmineToExcel
                             ws.Cell(i + offset, 10).Value = targetIssue.tracker.name;
 
                             ws.Cell(i + offset, 11).Value = targetIssue.isClosed == true ? 1 : 0;
-
                             ws.Column(11).Hide();
+
+                            // 子チケットがあるかどうか
+                            ws.Cell(i + offset, 12).Value = targetIssue.children.Count() != 0 ? 1 : 0;
+                            ws.Column(12).Hide();
+
                         }
                         ws.Cell(issues.Count + offset + 1, 1).Value = "■";
 
